@@ -4,6 +4,8 @@
 Im Rahmen des SWEN3-Projekts wurde in Sprint 1 das Grundgerüst für das Paperless DMS erstellt.  
 Ziel war es, ein lauffähiges Projekt mit Spring Boot, einer ersten REST API sowie einer Data Access Layer (DAL) Struktur aufzubauen.
 
+GitHub Repo.Url: https://github.com/if23b229/Swen3ProjRepo.git
+
 ---
 
 ## Projekt Setup

@@ -7,19 +7,44 @@ services:
       POSTGRES_USER: paperless
       POSTGRES_PASSWORD: paperless
     ports:
-      - "5432:5432"
+      - "5432:5432" # expose for local tools (DataGrip/Adminer direct). Optional in team/prod.
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   adminer:
     image: adminer
     container_name: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres   # so the dropdown defaults to the compose service 'postgres'
+    depends_on:
+      - postgres  # wait until DB container is created (not a health check) not yet created
     ports:
-      - "9091:8080"
+      - "9091:8080" # http://localhost:9091
+
+  # NEW: PaperlessREST API in Docker
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api         # it has to be named hte same
+    container_name: paperless-api
+    depends_on:
+      - postgres
+    environment:
+      # point Spring to the DB INSIDE the compose network (host is 'postgres', not 'localhost')
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/paperless
+      SPRING_DATASOURCE_USERNAME: paperless
+      SPRING_DATASOURCE_PASSWORD: paperless
+      # optional but handy
+      SERVER_PORT: 8080
+      JPA_DDL_AUTO: update               # dev convenience; prefer 'validate' in prod
+    ports:
+      - "8080:8080"                      # optional for direct browser/curl to API during dev
 
   ui:
     image: nginx:alpine
     container_name: paperless-ui
+    depends_on:
+      - api #container has to exist before it starts
     ports: ["8085:80"]             # UI: http://localhost:8085
     volumes:
       - ./ui:/usr/share/nginx/html:ro

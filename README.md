@@ -1,4 +1,4 @@
-# SWEN3 Paperless DMS – Sprint 1
+# SWEN3 Paperless DMS
 
 ## Overview
 This project is part of the SWEN3 course (Document Management System).  

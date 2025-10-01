@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: paperless-postgres
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "9091:8080"
+
+  ui:
+    image: nginx:alpine
+    container_name: paperless-ui
+    ports: ["8085:80"]             # UI: http://localhost:8085
+    volumes:
+      - ./ui:/usr/share/nginx/html:ro
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  pgdata: {}

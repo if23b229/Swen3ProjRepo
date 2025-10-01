@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Paperless — Messages</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar" role="banner">
+    <div class="wrap">
+        <h1>Paperless <span class="muted">— Messages</span></h1>
+    </div>
+</header>
+
+<main class="wrap" role="main">
+    <section class="card" aria-labelledby="form-title">
+        <h2 id="form-title" class="visually-hidden">Add a message</h2>
+
+        <form id="msgForm" class="grid" novalidate>
+            <div class="field">
+                <label for="text">Text</label>
+                <input id="text" name="text" placeholder="Write a message…" required autocomplete="off" />
+            </div>
+
+            <div class="field">
+                <label for="author">Author</label>
+                <input id="author" name="author" placeholder="Your name…" required autocomplete="name" />
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn primary" aria-label="Add message">
+                    <span class="icon" aria-hidden="true">＋</span> Add
+                </button>
+                <button id="refresh" type="button" class="btn" aria-label="Refresh messages">
+                    <span class="icon" aria-hidden="true">⟳</span> Refresh
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="card" aria-labelledby="list-title">
+        <h2 id="list-title" class="visually-hidden">Messages</h2>
+        <ul id="list" class="list" aria-live="polite" aria-busy="false"></ul>
+
+    </section>
+</main>
+
+<footer class="foot wrap" role="contentinfo">
+    <small>Paperless demo UI</small>
+</footer>
+
+<script>
+    // Autofocus convenience; safe even if JS runs before DOMContentLoaded.
+    window.addEventListener('load', () => {
+        const el = document.getElementById('text');
+        if (el) el.focus();
+    });
+</script>
+<script src="app.js"></script>
+</body>
+</html>

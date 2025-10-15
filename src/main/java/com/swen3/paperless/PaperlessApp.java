@@ -9,5 +9,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PaperlessApp {
     public static void main(String[] args) {
         SpringApplication.run(PaperlessApp.class, args);
-        }
     }
+}

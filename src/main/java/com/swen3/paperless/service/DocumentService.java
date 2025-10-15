@@ -3,6 +3,8 @@ package com.swen3.paperless.service;
 import com.swen3.paperless.exception.BadRequestException;
 import com.swen3.paperless.exception.TransferFailedException;
 import com.swen3.paperless.model.OcrRequestEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +19,8 @@ import java.util.UUID;
 
 @Service
 public class DocumentService {
+    private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
+
     private final QueuePublisherService queuePublisherService;
     private final Path uploadRoot;
 
@@ -37,6 +41,7 @@ public class DocumentService {
         try {
             Files.createDirectories(uploadRoot);
         } catch (IOException e) {
+            log.error("Failed to create uploads directory", e);
             throw new TransferFailedException();
         }
         String documentId = UUID.randomUUID().toString();
@@ -47,6 +52,7 @@ public class DocumentService {
             InputStream in = file.getInputStream();
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
+            log.error("Failed to transfer file to uploads directory", e);
             throw new TransferFailedException();
         }
         String correlationId = UUID.randomUUID().toString();

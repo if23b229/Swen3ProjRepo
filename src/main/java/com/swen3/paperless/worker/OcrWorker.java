@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class OcrWorker {
     @RabbitListener(queues = "${app.mq.resultQueue}")
-    public void onOcrResultEvent(OcrResultEvent result) {
-        System.out.println("Hello Ocr Worker Result");
+    public void onOcrResultEvent(OcrResultEvent event) {
+        System.out.println("OCR successful: " + event.success());
     }
 
     @RabbitListener(queues = "${app.mq.ocrQueue}")
-    public void onOcrRequestEvent(OcrRequestEvent request) {
-        System.out.println("Hello Ocr Worker");
+    public void onOcrRequestEvent(OcrRequestEvent event) {
+        System.out.println("Request OCR for file: " + event.storageUri());
     }
 }

@@ -58,6 +58,8 @@ services:
       # optional but handy
       SERVER_PORT: 8080
       JPA_DDL_AUTO: update               # dev convenience; prefer 'validate' in prod
+    volumes:
+      - ./uploads:/app/uploads
     ports:
       - "8080:8080"                      # optional for direct browser/curl to API during dev
 

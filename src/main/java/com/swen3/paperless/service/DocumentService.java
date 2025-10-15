@@ -37,17 +37,17 @@ public class DocumentService {
         try {
             Files.createDirectories(uploadRoot);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TransferFailedException();
         }
         String documentId = UUID.randomUUID().toString();
         String safeName = documentId + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
         Path target = uploadRoot.resolve(safeName);
 
-        try  {
+        try {
             InputStream in = file.getInputStream();
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TransferFailedException();
         }
         String correlationId = UUID.randomUUID().toString();
 

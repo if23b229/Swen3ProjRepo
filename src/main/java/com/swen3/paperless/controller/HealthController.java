@@ -10,6 +10,6 @@ public class HealthController {
 
     @GetMapping("/api/v1/health")//Das ist eine Annotation von Spring Boot, die eine HTTP-Route definiert.
     public Map<String, String> health() {
-        return Map.of("status", "UP");
+        return Map.of("status", "App running");
     }
 }

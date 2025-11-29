@@ -8,12 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -22,11 +16,11 @@ public class DocumentService {
     private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
     private final QueuePublisherService queuePublisherService;
-    private final Path uploadRoot;
+    private final MinioStorageService minioStorageService;
 
-    public DocumentService(QueuePublisherService queuePublisherService) {
+    public DocumentService(QueuePublisherService queuePublisherService, MinioStorageService minioStorageService) {
         this.queuePublisherService = queuePublisherService;
-        this.uploadRoot = Paths.get("uploads").toAbsolutePath().normalize();
+        this.minioStorageService = minioStorageService;
     }
 
     public void uploadDocument(MultipartFile file) throws BadRequestException, TransferFailedException {
@@ -38,29 +32,21 @@ public class DocumentService {
             throw new BadRequestException("Only .txt files are allowed");
         }
 
+        String storageUri;
         try {
-            Files.createDirectories(uploadRoot);
-        } catch (IOException e) {
-            log.error("Failed to create uploads directory", e);
+            storageUri = minioStorageService.uploadPdf(file);
+        } catch (RuntimeException e) {
+            log.error("Failed to upload file to MinIO", e);
             throw new TransferFailedException();
         }
-        String documentId = UUID.randomUUID().toString();
-        String safeName = documentId + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
-        Path target = uploadRoot.resolve(safeName);
 
-        try {
-            InputStream in = file.getInputStream();
-            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            log.error("Failed to transfer file to uploads directory", e);
-            throw new TransferFailedException();
-        }
+        String documentId = UUID.randomUUID().toString();
         String correlationId = UUID.randomUUID().toString();
 
-        var event = new OcrRequestEvent(
+        OcrRequestEvent event = new OcrRequestEvent(
                 documentId,
-                file.getOriginalFilename(),
-                target.toString(),
+                originalFilename,
+                storageUri,
                 Instant.now(),
                 correlationId
         );

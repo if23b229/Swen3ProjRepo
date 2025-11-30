@@ -28,8 +28,8 @@ public class DocumentService {
         if (originalFilename == null) {
             throw new BadRequestException("Invalid Filename");
         }
-        if (!originalFilename.endsWith(".txt")) {
-            throw new BadRequestException("Only .txt files are allowed");
+        if (!originalFilename.endsWith(".pdf")) {
+            throw new BadRequestException("Only .pdf files are allowed");
         }
 
         String storageUri;

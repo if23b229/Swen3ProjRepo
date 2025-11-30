@@ -36,6 +36,19 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
 
+  minio:
+    image: minio/minio:latest
+    container_name: paperless-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio12345
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web console
+    volumes:
+      - minio_data:/data
+
   # NEW: PaperlessREST API in Docker
   api:
     build:
@@ -45,6 +58,7 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+      - minio
     environment:
       # point Spring to the DB INSIDE the compose network (host is 'postgres', not 'localhost')
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/paperless
@@ -58,6 +72,10 @@ services:
       # optional but handy
       SERVER_PORT: 8080
       JPA_DDL_AUTO: update               # dev convenience; prefer 'validate' in prod
+      APP_MINIO_ENDPOINT: http://minio:9000
+      APP_MINIO_ACCESSKEY: minio
+      APP_MINIO_SECRETKEY: minio12345
+      APP_MINIO_BUCKET: documents
     volumes:
       - ./uploads:/app/uploads
     ports:
@@ -76,3 +94,4 @@ services:
 volumes:
   pgdata: { }
   rabbitmq_data:
+  minio_data:

@@ -3,6 +3,7 @@ package com.swen3.paperless.service;
 import com.swen3.paperless.exception.BadRequestException;
 import com.swen3.paperless.exception.TransferFailedException;
 import com.swen3.paperless.model.OcrRequestEvent;
+import com.swen3.paperless.repository.MinioStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,10 @@ import java.util.UUID;
 public class DocumentService {
     private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
-    private final QueuePublisherService queuePublisherService;
+    private final QueuePublisherServiceImpl queuePublisherService;
     private final MinioStorageService minioStorageService;
 
-    public DocumentService(QueuePublisherService queuePublisherService, MinioStorageService minioStorageService) {
+    public DocumentService(QueuePublisherServiceImpl queuePublisherService, MinioStorageServiceImpl minioStorageService) {
         this.queuePublisherService = queuePublisherService;
         this.minioStorageService = minioStorageService;
     }

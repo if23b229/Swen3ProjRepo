@@ -1,5 +1,6 @@
 package com.swen3.paperless.service;
 
+import com.swen3.paperless.repository.MinioStorageService;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,12 +11,12 @@ import java.io.InputStream;
 import java.util.UUID;
 
 @Service
-public class MinioStorageService {
+public class MinioStorageServiceImpl implements MinioStorageService {
 
     private final MinioClient minioClient;
     private final String bucketName;
 
-    public MinioStorageService(
+    public MinioStorageServiceImpl(
             MinioClient minioClient,
             @Value("${app.minio.bucket}") String bucketName
     ) {
@@ -23,6 +24,7 @@ public class MinioStorageService {
         this.bucketName = bucketName;
     }
 
+    @Override
     public String uploadPdf(MultipartFile file) {
         try {
             String objectName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -52,6 +54,7 @@ public class MinioStorageService {
         }
     }
 
+    @Override
     public InputStream download(String bucket, String objectName) {
         try {
             return minioClient.getObject(

@@ -55,6 +55,20 @@
             <version>8.5.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Testen -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -66,9 +80,13 @@
     <build>
         <plugins>
             <!-- Spring Boot Plugin (für mvn spring-boot:run) -->
-            <plugin>
+        <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <mainClass>com.swen3.paperless.PaperlessApp</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

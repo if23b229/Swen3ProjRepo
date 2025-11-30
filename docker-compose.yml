@@ -49,6 +49,26 @@ services:
     volumes:
       - minio_data:/data
 
+  ocr-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.ocr
+    container_name: paperless-ocr-worker
+    depends_on:
+      - rabbitmq
+      - minio
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
+      APP_MINIO_ENDPOINT: http://minio:9000
+      APP_MINIO_ACCESSKEY: minio
+      APP_MINIO_SECRETKEY: minio12345
+      APP_MINIO_BUCKET: documents
+
+
   # NEW: PaperlessREST API in Docker
   api:
     build:

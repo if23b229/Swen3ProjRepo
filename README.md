@@ -1,58 +1,131 @@
-# 🗂️ SWEN3 Paperless DMS
+# SWEN3 Paperless DMS
 
-## 📖 Overview
-This project is part of the **SWEN3** course — a **Document Management System (DMS)** designed to demonstrate modern backend development practices.
+## Overview
+This project is part of the SWEN3 course — a Document Management System (DMS) that demonstrates modern backend development practices such as REST APIs, object storage, message queues, asynchronous workers, and OCR processing.
 
-**Sprint 1** focuses on delivering the foundational setup, which includes:
-- ✅ **Spring Boot 3** application structure
-- 🌐 **REST API** endpoints
-- 💾 **Data Access Layer (DAL)** using an **in-memory H2 database**
+This submission includes all required features:
 
----
-
-## 🚀 Getting Started
-
-### 🧩 Requirements
-Before running the project, ensure you have the following installed:
-
-- **Java** 21 (or higher LTS)
-- **Maven** 3.9+
-- **Docker** and **Docker Compose**
+- Spring Boot 3 REST API
+- Uploading PDF documents into MinIO object storage
+- Asynchronous OCR pipeline using RabbitMQ
+- Dedicated OCR Worker (separate Spring Boot application)
+- Tesseract OCR and Ghostscript integration
+- Unit tests for OCR engine and worker logic
+- Fully containerized setup using Docker Compose
+- Adminer for database inspection
+- Nginx for static UI hosting
 
 ---
 
-## 🐳 Build & Run with Docker
+## System Architecture
 
-To build and start all containers locally:
+REST API (PaperlessApp)
+- Stores files in MinIO
+- Publishes OcrRequestEvent to RabbitMQ
 
-```bash
-docker compose down   # Stop any running containers
-docker compose build  # Build all images
-docker compose up -d  # Run containers in detached mode
-```
+RabbitMQ
+- Routes OCR tasks to the worker
 
-This will start the application along with all required services (e.g., database, message broker, etc. in later sprints).
+OCR Worker (OcrWorkerApp)
+- Downloads the PDF from MinIO
+- Runs OCR using Tesseract and Ghostscript
+- Publishes OcrResultEvent back to RabbitMQ
+
+MinIO
+- Stores original PDF files
+
+PostgreSQL
+- Stores metadata (future sprints)
+
+Nginx UI
+- Serves static frontend files
+
+Adminer
+- Database inspector for PostgreSQL
 
 ---
 
-## 💻 Run Locally (Without Docker)
+## Requirements
 
-If you prefer to run the application directly on your system:
+Install the following before running the project:
 
-```bash
-mvn clean package
+- Java 21+
+- Maven 3.9+
+- Docker and Docker Compose
+- (Optional) Tesseract OCR and Ghostscript for running OCR tests locally
+
+---
+
+## Build and Run with Docker
+
+To build and start the entire system:
+-docker compose down
+-docker compose build
+-docker compose up -d
+### Services Started by Docker
+
+- REST API: http://localhost:8080/api/v1
+- UI (Nginx): http://localhost:8085
+- MinIO Console: http://localhost:9001
+- RabbitMQ Management UI: http://localhost:15672
+- Adminer: http://localhost:9091
+
+RabbitMQ default credentials:
+- user: guest
+- pass: guest
+
+MinIO default credentials:
+- user: minio
+- pass: minio12345
+
+---
+
+## Run Locally Without Docker
+mvn clean package AND
 mvn spring-boot:run
-```
 
-The REST API will be available at:
+---
 
-```
-http://localhost:8080/api/v1
-```
+## Uploading a Document
 
-## 🧱 Technologies Used
-- **Spring Boot 3**
-- **Maven**
-- **H2 Database**
-- **Docker / Docker Compose**
-- **Java 21**
+Endpoint:
+
+POST /api/v1/document
+
+Form-data:
+- file: yourfile.pdf
+
+Process:
+1. API stores the PDF in MinIO
+2. API publishes an OcrRequestEvent to RabbitMQ
+3. OCR worker downloads the file
+4. Tesseract extracts the text
+5. Worker publishes OcrResultEvent
+6. API receives the event
+
+---
+
+## Testing
+
+### Unit Tests Implemented
+
+- TesseractOcrEngineTest
+    - Tests OCR on a sample PDF
+    - Skips the test if Tesseract or Ghostscript are not installed locally
+
+- OcrWorkerTest
+    - Uses mock MinIO and mock OCR engine
+    - Verifies:
+        - MinIO download is called
+        - OCR engine is called
+        - QueuePublisherService sends result event
+
+Open MinioUI for Testing and visual feedback on stored pdf visit:
+http://localhost:9001
+
+
+Login Credentials 
+
+Username: minio 
+
+Password: minio12345

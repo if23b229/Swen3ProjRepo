@@ -1,6 +1,5 @@
 package com.swen3.paperless.service;
 
-import com.swen3.paperless.repository.OcrEngine;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 

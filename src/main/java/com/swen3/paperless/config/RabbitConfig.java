@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
+
     @Value("${app.mq.exchange}")
     String exchangeName;
 
@@ -19,11 +20,23 @@ public class RabbitConfig {
     @Value("${app.mq.resultQueue}")
     String resultQueueName;
 
+    @Value("${app.mq.genAiQueue}")
+    String genAiQueueName;
+
+    @Value("${app.mq.genAiResultQueue}")
+    String genAiResultQueueName;
+
     @Value("${app.mq.ocrKey}")
     String ocrKey;
 
     @Value("${app.mq.resultKey}")
     String resultKey;
+
+    @Value("${app.mq.genAiKey}")
+    String genAiKey;
+
+    @Value("${app.mq.genAiResultKey}")
+    String genAiResultKey;
 
     @Bean
     TopicExchange exchange() {
@@ -41,13 +54,33 @@ public class RabbitConfig {
     }
 
     @Bean
+    Queue genAiQueue() {
+        return QueueBuilder.durable(genAiQueueName).build();
+    }
+
+    @Bean
+    Queue genAiResultQueue() {
+        return QueueBuilder.durable(genAiResultQueueName).build();
+    }
+
+    @Bean
     Binding bindOcr(Queue ocrQueue, TopicExchange exchange) {
         return BindingBuilder.bind(ocrQueue).to(exchange).with(ocrKey);
     }
 
     @Bean
-    Binding bindResult(Queue resultQueue, TopicExchange exchange) {
+    Binding bindOcrResult(Queue resultQueue, TopicExchange exchange) {
         return BindingBuilder.bind(resultQueue).to(exchange).with(resultKey);
+    }
+
+    @Bean
+    Binding bindGenAi(Queue genAiQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(genAiQueue).to(exchange).with(genAiKey);
+    }
+
+    @Bean
+    Binding bindGenAiResult(Queue genAiResultQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(genAiResultQueue).to(exchange).with(genAiResultKey);
     }
 
     @Bean

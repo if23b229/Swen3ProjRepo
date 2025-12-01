@@ -5,12 +5,4 @@ RUN apk add --no-cache tesseract-ocr ghostscript
 WORKDIR /app
 COPY target/SWEN3_DMS-1.0-SNAPSHOT.jar app.jar
 
-# Spring Boot 3: launcher is in org.springframework.boot.loader.launch.*
-FROM eclipse-temurin:21-jre-alpine
-
-RUN apk add --no-cache tesseract-ocr ghostscript
-
-WORKDIR /app
-COPY target/SWEN3_DMS-1.0-SNAPSHOT.jar app.jar
-
-ENTRYPOINT ["java","-Dloader.main=com.swen3.paperless.OcrWorkerApp","-cp","app.jar","org.springframework.boot.loader.launch.PropertiesLauncher"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=ocr", "-Dloader.main=com.swen3.paperless.worker.ocr.OcrWorkerApp", "-cp", "app.jar", "org.springframework.boot.loader.launch.PropertiesLauncher"]

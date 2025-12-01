@@ -1,6 +1,5 @@
 package com.swen3.paperless.service;
 
-import com.swen3.paperless.repository.MinioStorageService;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Value;

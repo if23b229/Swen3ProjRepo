@@ -1,4 +1,4 @@
-package com.swen3.paperless.repository;
+package com.swen3.paperless.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

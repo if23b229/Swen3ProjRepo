@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: paperless
       POSTGRES_PASSWORD: paperless
     ports:
-      - "5432:5432" # expose for local tools (DataGrip/Adminer direct). Optional in team/prod.
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -15,26 +15,24 @@ services:
     image: adminer
     container_name: adminer
     environment:
-      ADMINER_DEFAULT_SERVER: postgres   # so the dropdown defaults to the compose service 'postgres'
+      ADMINER_DEFAULT_SERVER: postgres
     depends_on:
-      - postgres  # wait until DB container is created (not a health check) not yet created
+      - postgres
     ports:
-      - "9091:8080" # http://localhost:9091
+      - "9091:8080"
 
   rabbitmq:
-    # this is the latest stable version of RabbitMQ with the management console pre-installed
     image: rabbitmq:4-management
     container_name: rabbitmq
     ports:
-      - "5672:5672" # Default AMQP connection
-      - "15672:15672" # RabbitMQ Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit loopback_users []"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    restart: unless-stopped
 
   minio:
     image: minio/minio:latest
@@ -44,8 +42,8 @@ services:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio12345
     ports:
-      - "9000:9000"   # S3 API
-      - "9001:9001"   # Web console
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
 
@@ -54,6 +52,7 @@ services:
       context: .
       dockerfile: Dockerfile.ocr
     container_name: paperless-ocr-worker
+    command: ["--spring.config.name=application-ocr"]
     depends_on:
       - rabbitmq
       - minio
@@ -68,50 +67,60 @@ services:
       APP_MINIO_SECRETKEY: minio12345
       APP_MINIO_BUCKET: documents
 
+  genai-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.genai
+    container_name: paperless-genai-worker
+    command: ["--spring.config.name=application-genai"]
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      APP_GENAI_KEY: ${GEMINI_API_KEY}
 
-  # NEW: PaperlessREST API in Docker
   api:
     build:
       context: .
-      dockerfile: Dockerfile.api         # it has to be named hte same
+      dockerfile: Dockerfile.api
     container_name: paperless-api
     depends_on:
       - postgres
       - rabbitmq
       - minio
     environment:
-      # point Spring to the DB INSIDE the compose network (host is 'postgres', not 'localhost')
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/paperless
       SPRING_DATASOURCE_USERNAME: paperless
       SPRING_DATASOURCE_PASSWORD: paperless
-      # environment variables for RabbitMQ
+
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      # optional but handy
-      SERVER_PORT: 8080
-      JPA_DDL_AUTO: update               # dev convenience; prefer 'validate' in prod
+
       APP_MINIO_ENDPOINT: http://minio:9000
       APP_MINIO_ACCESSKEY: minio
       APP_MINIO_SECRETKEY: minio12345
       APP_MINIO_BUCKET: documents
-    volumes:
-      - ./uploads:/app/uploads
+
     ports:
-      - "8080:8080"                      # optional for direct browser/curl to API during dev
+      - "8080:8080"
 
   ui:
     image: nginx:alpine
     container_name: paperless-ui
     depends_on:
-      - api #container has to exist before it starts
-    ports: [ "8085:80" ]             # UI: http://localhost:8085
+      - api
+    ports:
+      - "8085:80"
     volumes:
       - ./ui:/usr/share/nginx/html:ro
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
-  pgdata: { }
+  pgdata:
   rabbitmq_data:
   minio_data:

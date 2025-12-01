@@ -2,10 +2,10 @@ package com.swen3.paperless.worker;
 
 import com.swen3.paperless.model.OcrRequestEvent;
 import com.swen3.paperless.model.OcrResultEvent;
-import com.swen3.paperless.repository.MinioStorageService;
-import com.swen3.paperless.repository.OcrEngine;
-import com.swen3.paperless.repository.QueuePublisherService;
-import com.swen3.paperless.service.QueuePublisherServiceImpl;
+import com.swen3.paperless.service.MinioStorageService;
+import com.swen3.paperless.service.OcrEngine;
+import com.swen3.paperless.queue.QueuePublisherService;
+import com.swen3.paperless.worker.ocr.OcrWorker;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

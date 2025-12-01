@@ -1,6 +1,5 @@
 package com.swen3.paperless.service;
 
-import com.swen3.paperless.repository.OcrEngine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;

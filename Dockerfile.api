@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=build /workspace/target/*-SNAPSHOT.jar /app/app.jar
 EXPOSE 8080
 ENV JAVA_OPTS=""
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=api", "-jar", "app.jar"]

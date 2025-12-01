@@ -84,6 +84,8 @@ MinIO default credentials:
 mvn clean package AND
 mvn spring-boot:run
 
+if target folder is missing, run mvn clean and mvn package
+
 ---
 
 ## Uploading a Document
@@ -129,3 +131,5 @@ Login Credentials
 Username: minio 
 
 Password: minio12345
+
+

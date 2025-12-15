@@ -1,29 +1,66 @@
-async function load() {
-    const res = await fetch('/api/v1/messages');
-    const data = await res.json();
-    const ul = document.getElementById('list');
-    ul.innerHTML = '';
-    data.forEach(m => {
-        const li = document.createElement('li');
-        li.textContent = `${m.id ?? 'no-id'} | ${m.text} — ${m.author}`;
-        ul.appendChild(li);
+async function loadDocuments() {
+    const response = await fetch("/api/documents");
+    const docs = await response.json();
+
+    const list = document.getElementById("docList");
+    list.innerHTML = "";
+
+    if (docs.length === 0) {
+        list.innerHTML = "<p class='text-muted'>No documents found.</p>";
+        return;
+    }
+
+    docs.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "card mb-2 shadow-sm";
+
+        div.innerHTML = `
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <i class="bi bi-file-earmark-pdf"></i> ${d.fileName}
+                    </h5>
+                
+                    <p class="card-text text-muted mb-1">
+                        Type: ${d.mimeType}<br>
+                        Uploaded: ${new Date(d.uploadDate).toLocaleString()}
+                    </p>
+                
+                    <p class="card-text mt-2">
+                        <strong>Summary:</strong><br>
+                        ${d.summary ? d.summary : "<span class='text-muted'>Summary is not available yet...</span>"}
+                    </p>
+                </div>
+            </div>
+        `;
+
+        list.appendChild(div);
     });
 }
 
-document.getElementById('refresh').onclick = load;
+async function uploadPDF(event) {
+    event.preventDefault();
 
-document.getElementById('msgForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const text = document.getElementById('text').value;
-    const author = document.getElementById('author').value;
-    await fetch('/api/v1/messages', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ text, author })
+    const fileInput = document.getElementById("pdfFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a PDF file");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/documents/upload", {
+        method: "POST",
+        body: formData
     });
-    document.getElementById('text').value = '';
-    document.getElementById('author').value = '';
-    load();
-};
 
-load();
+    if (response.ok) {
+        alert("PDF uploaded!");
+        loadDocuments();
+    } else {
+        alert("Upload failed");
+    }
+}

@@ -1,9 +1,0 @@
-FROM nginx:alpine
-
-# copy static UI
-COPY ui/index.html  /usr/share/nginx/html/index.html
-COPY ui/app.js      /usr/share/nginx/html/app.js
-COPY ui/styles.css  /usr/share/nginx/html/styles.css
-
-# use your nginx config from deploy/
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
